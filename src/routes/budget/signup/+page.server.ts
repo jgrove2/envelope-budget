@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
-import type { Actions, PageServerLoad } from '../lucia/signin/$types';
+import type { Actions, PageServerLoad } from '../signin/$types';
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
@@ -49,6 +49,12 @@ export const actions: Actions = {
 			return fail(500, { message: 'An error has occurred'});
 		}
 		return redirect(302, '/budget');
+	},
+	cancel: async (event) => {
+		return redirect(302, '/')
+	},
+	login: async (event) => {
+		return redirect(302, '/budget/signin')
 	}
 };
 

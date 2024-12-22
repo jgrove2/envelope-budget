@@ -6,9 +6,9 @@
 	let { form }: { form: ActionData } = $props();
 </script>
 
-<div class="signin">
+<div class="signup">
 	<h1>Signup</h1>
-	<form method="post" action="?/login" use:enhance>
+	<form method="post" action="?/register" use:enhance>
 		<label>
 			<span>Username</span>
 			<input name="username" />
@@ -18,15 +18,16 @@
 			<input type="password" name="password" />
 		</label>
 		<span class="form-buttons">
-			<button formaction="?/register">Register</button>
-			<button onclick={() => goto("/")}>Cancel</button>
+			<button>Register</button>
+			<button formaction="?/cancel">Cancel</button>
 		</span>
+		<a href="/budget/signin">Signin to budget</a>
 	</form>
 	<p style="color: red">{form?.message ?? ''}</p>
 </div>
 
 <style>
-	.signin {
+	.signup {
 		display: flex;
 		height: 100vh;
 		flex-direction: column;
@@ -34,7 +35,6 @@
 		justify-content: center;
 		h1 {
 			color: var(---text);
-			font-size: 3rem;
 		}
 		form {
 			display: flex;
@@ -44,7 +44,6 @@
 				display: flex;
 				flex-direction: row;
 				gap: 1rem;
-				width: 24rem;
 				button {
 					color: var(---background);
 					background-color: var(---text);
@@ -58,7 +57,6 @@
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				width: 24rem;
 				input {
 					width: 65%;
 					height: 2rem;
@@ -72,6 +70,39 @@
 					font-size: 1rem;
 					color: var(---text);
 				}
+			}
+			a {
+				color: var(---text);
+				text-align: center;
+				&:visited {
+					text-decoration: none;
+				}
+			}
+		}
+	}
+	@media only screen and (max-width: 700px) {
+		.signup {
+			h1 {
+				font-size: 2rem;
+			}
+			.form-buttons {
+				width: 18rem;
+			}
+			label {
+				width: 18rem;
+			}
+		}
+	}
+	@media only screen and (min-width: 701px) {
+		.signup {
+			h1 {
+				font-size: 3rem;
+			}
+			.form-buttons {
+				width: 24rem;
+			}
+			label {
+				width: 24rem;
 			}
 		}
 	}

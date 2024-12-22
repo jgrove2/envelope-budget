@@ -19,9 +19,9 @@
 		</label>
 		<span class="form-buttons">
 			<button>Login</button>
-			<button onclick={() => goto("/")}>Cancel</button>
+			<button formaction="?/cancel">Cancel</button>
 		</span>
-		<button formaction="?/register">Register</button>
+		<a href="/budget/signup">Register for budget</a>
 	</form>
 	<p style="color: red">{form?.message ?? ''}</p>
 </div>
@@ -35,7 +35,6 @@
 		justify-content: center;
 		h1 {
 			color: var(---text);
-			font-size: 3rem;
 		}
 		form {
 			display: flex;
@@ -45,7 +44,6 @@
 				display: flex;
 				flex-direction: row;
 				gap: 1rem;
-				width: 24rem;
 				button {
 					color: var(---background);
 					background-color: var(---text);
@@ -59,7 +57,6 @@
 				display: flex;
 				flex-direction: row;
 				align-items: center;
-				width: 24rem;
 				input {
 					width: 65%;
 					height: 2rem;
@@ -73,6 +70,39 @@
 					font-size: 1rem;
 					color: var(---text);
 				}
+			}
+			a {
+				color: var(---text);
+				text-align: center;
+				&:visited {
+					text-decoration: none;
+				}
+			}
+		}
+	}
+	@media only screen and (max-width: 700px) {
+		.signin {
+			h1 {
+				font-size: 2rem;
+			}
+			.form-buttons {
+				width: 18rem;
+			}
+			label {
+				width: 18rem;
+			}
+		}
+	}
+	@media only screen and (min-width: 701px) {
+		.signin {
+			h1 {
+				font-size: 3rem;
+			}
+			.form-buttons {
+				width: 24rem;
+			}
+			label {
+				width: 24rem;
 			}
 		}
 	}

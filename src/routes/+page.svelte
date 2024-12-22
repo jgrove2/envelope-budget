@@ -35,4 +35,15 @@
 			gap: 1rem;
 		}
 	}
+	@media only screen and (max-width: 700px) {
+		.home-wrapper {
+			h1 {
+				font-size: 3rem;
+			}
+			button {
+				width: 6rem;
+				font-size: 1rem;
+			}
+		}
+	}
 </style>
