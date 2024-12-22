@@ -6,7 +6,7 @@ export default defineConfig({
 
 	dbCredentials: {
 		url: process.env.DATABASE_URL,
-		ssl: false,
+		ssl: "require",
 		port: 5432
 	},
 	out: "./drizzle",
