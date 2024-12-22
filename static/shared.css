@@ -1,0 +1,16 @@
+html {
+	---background: #f2efec;
+	---text: #273135;
+	---primary: #825335;
+	---secondary: #d6b19a;
+	---accent: #905c3c;
+    ---accent-glass: rgba(144, 92, 60, 0.7);
+    overflow-x: hidden;
+    height: 100%;
+}
+
+body {
+    background-color: var(---background);
+    margin: 0;
+    height: 100%;
+}
