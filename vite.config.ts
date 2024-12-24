@@ -8,6 +8,11 @@ export default defineConfig({
 			target: 'es2022'
 		}
 	},
+	esbuild: {
+		supported: {
+			'top-level-await': true
+		}
+	},
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	}
