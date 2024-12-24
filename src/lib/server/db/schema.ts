@@ -44,6 +44,7 @@ export const transaction = pgTable('transaction', {
 	transactionDate: timestamp('transaction_date', { withTimezone: true, mode: 'date' }).notNull(),
 })
 
+
 export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
@@ -55,3 +56,4 @@ export type Category = typeof category.$inferSelect;
 export type CategoryGroup = typeof categoryGroup.$inferSelect;
 
 export type Transaction = typeof transaction.$inferSelect;
+

@@ -1,0 +1,201 @@
+{
+  "permissions": {
+    "user": {},
+    "payee": {},
+    "category": {},
+    "category_group": {},
+    "transaction": {}
+  },
+  "schema": {
+    "version": 1,
+    "tables": {
+      "category": {
+        "tableName": "category",
+        "primaryKey": [
+          "id"
+        ],
+        "columns": {
+          "budget": {
+            "type": "json",
+            "optional": false
+          },
+          "creationDate": {
+            "type": "number",
+            "optional": false
+          },
+          "groupId": {
+            "type": "string",
+            "optional": false
+          },
+          "id": {
+            "type": "string",
+            "optional": false
+          },
+          "name": {
+            "type": "string",
+            "optional": false
+          },
+          "userId": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "relationships": {
+          "group": {
+            "sourceField": [
+              "groupId"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "category_group"
+          },
+          "user": {
+            "sourceField": [
+              "userId"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "user"
+          }
+        }
+      },
+      "category_group": {
+        "tableName": "category_group",
+        "primaryKey": [
+          "id"
+        ],
+        "columns": {
+          "id": {
+            "type": "string",
+            "optional": false
+          },
+          "name": {
+            "type": "string",
+            "optional": false
+          },
+          "userId": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "relationships": {
+          "user": {
+            "sourceField": [
+              "userId"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "user"
+          }
+        }
+      },
+      "payee": {
+        "tableName": "payee",
+        "primaryKey": [
+          "id"
+        ],
+        "columns": {
+          "creationDate": {
+            "type": "number",
+            "optional": false
+          },
+          "id": {
+            "type": "string",
+            "optional": false
+          },
+          "name": {
+            "type": "string",
+            "optional": false
+          },
+          "userId": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "relationships": {
+          "user": {
+            "sourceField": [
+              "userId"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "user"
+          }
+        }
+      },
+      "transaction": {
+        "tableName": "transaction",
+        "primaryKey": [
+          "id"
+        ],
+        "columns": {
+          "id": {
+            "type": "string",
+            "optional": false
+          },
+          "payeeId": {
+            "type": "string",
+            "optional": false
+          },
+          "transactionAmount": {
+            "type": "number",
+            "optional": false
+          },
+          "transactionDate": {
+            "type": "number",
+            "optional": false
+          },
+          "userId": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "relationships": {
+          "payee": {
+            "sourceField": [
+              "payeeId"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "payee"
+          },
+          "user": {
+            "sourceField": [
+              "userId"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "user"
+          }
+        }
+      },
+      "user": {
+        "tableName": "user",
+        "primaryKey": [
+          "id"
+        ],
+        "columns": {
+          "id": {
+            "type": "string",
+            "optional": false
+          },
+          "passwordHash": {
+            "type": "string",
+            "optional": false
+          },
+          "username": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "relationships": {}
+      }
+    }
+  }
+}

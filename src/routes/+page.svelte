@@ -16,7 +16,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		height: 100vh;
+		height: 100dvh;
 		h1 {
 			color: var(---text);
 			font-size: 6rem;
