@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -14,6 +14,44 @@ export const session = pgTable('session', {
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
 
+export const payee = pgTable('payee', {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id),
+	name: text('name').notNull().unique(),
+})
+
+export const category = pgTable('category', {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id),
+	name: text('name').notNull(),
+	groupId: text('group_id').notNull(),
+	budget: jsonb('budget').notNull(),
+	creationDate: timestamp('creation_date', { withTimezone: true, mode: 'date' }).notNull(),
+})
+
+export const categoryGroup = pgTable('category_group', {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id),
+	name: text('name').notNull(),
+	creationDate: timestamp('creation_date', { withTimezone: true, mode: 'date' }).notNull(),
+})
+
+export const transaction = pgTable('transaction', {
+	id: text('id').primaryKey(),
+	userId: text('user_id').notNull().references(() => user.id),
+	transactionAmount: integer('transaction_amount').notNull(),
+	payeeId: text('payee_id').notNull().references(() => payee.id),
+	transactionDate: timestamp('transaction_date', { withTimezone: true, mode: 'date' }).notNull(),
+})
+
 export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
+
+export type Payee = typeof payee.$inferSelect;
+
+export type Category = typeof category.$inferSelect;
+
+export type CategoryGroup = typeof categoryGroup.$inferSelect;
+
+export type Transaction = typeof transaction.$inferSelect;
