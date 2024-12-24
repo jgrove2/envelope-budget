@@ -63,6 +63,7 @@
 					padding-left: 0.5rem;
 					border: 2px solid var(---text);
 					color: var(---text);
+					font-size: 1rem;
 					background-color: var(---background);
 				}
 				span {

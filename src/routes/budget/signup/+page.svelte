@@ -64,6 +64,7 @@
 					border: 2px solid var(---text);
 					color: var(---text);
 					background-color: var(---background);
+					font-size: 1rem;
 				}
 				span {
 					width: 35%;
