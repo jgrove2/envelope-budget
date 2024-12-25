@@ -21,7 +21,7 @@
 			<button>Login</button>
 			<button formaction="?/cancel">Cancel</button>
 		</span>
-		<a href="/budget/signup">Register for budget</a>
+		<a href="/signup">Register for budget</a>
 	</form>
 	<p style="color: red">{form?.message ?? ''}</p>
 </div>

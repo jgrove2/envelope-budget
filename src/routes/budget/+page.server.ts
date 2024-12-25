@@ -3,10 +3,10 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async (event) => {
-	if (!event.locals.user) {
-		return redirect(302, '/budget/signin');
-	}
-	return { user: event.locals.user };
+    if (!event.locals.user) {
+        return redirect(302, '/signin');
+    }
+    return { user: event.locals.user };
 };
 
 export const actions: Actions = {

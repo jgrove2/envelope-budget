@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import type { ActionData } from './$types';
+	import type { ActionData } from '../$types';
 
 	let { form }: { form: ActionData } = $props();
 </script>
@@ -21,7 +21,7 @@
 			<button>Register</button>
 			<button formaction="?/cancel">Cancel</button>
 		</span>
-		<a href="/budget/signin">Signin to budget</a>
+		<a href="/signin">Signin to budget</a>
 	</form>
 	<p style="color: red">{form?.message ?? ''}</p>
 </div>

@@ -5,8 +5,8 @@
 <div class="home-wrapper">
 	<h1>Welcome</h1>
 	<span>
-		<button onclick={() => goto('/budget/signin')}>Signin</button>
-		<button onclick={() => goto('/budget/signup')}>Signup</button>
+		<button onclick={() => goto('/signin')}>Signin</button>
+		<button onclick={() => goto('/signup')}>Signup</button>
 	</span>
 </div>
 
