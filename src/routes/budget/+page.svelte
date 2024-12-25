@@ -2,11 +2,10 @@
 	import { enhance } from '$app/forms';
 	import { Query } from 'zero-svelte';
 	import type { PageServerData } from './$types';
-	import { zConstructor } from '$lib/z.svelte';
+	import { get_cache } from '$lib/z.svelte';
 	let { data }: { data: PageServerData } = $props();
-	const z = zConstructor(data.user.id)
-
-	let userQuery = z.current.query.user.where('id', '=', data.user.id);
+	let cache = get_cache();
+	let userQuery = cache.z.query.user.where('id', '=', data.user.id);
 	const users = new Query(userQuery);
 </script>
 
@@ -19,3 +18,7 @@
 <form method="post" action="?/logout" use:enhance>
 	<button>Sign out</button>
 </form>
+
+<style>
+
+</style>
