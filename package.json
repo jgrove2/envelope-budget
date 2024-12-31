@@ -16,7 +16,7 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"dev:zero-cache": "zero-cache-dev -p src/lib/server/db/zSchema.ts"
+		"dev:zero-cache": "zero-cache-dev -p src/lib/schema.ts"
 	},
 	"devDependencies": {
 		"@flydotio/dockerfile": "^0.5.9",
@@ -48,6 +48,7 @@
 		"node": "^20.18.1",
 		"pg": "^8.13.1",
 		"postgres": "^3.4.4",
+		"uuid": "^11.0.3",
 		"zero-svelte": "^0.0.14"
 	}
 }

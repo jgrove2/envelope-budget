@@ -9,8 +9,6 @@
 	let { children } = $props();
     let y = $state(0);
     let headerClasses = $derived(`header ${y > 0 ? "scrolled": ""}`);
-    $inspect(y);
-    $inspect(headerClasses);
 </script>
 <div class="budget-wrapper">
     <div class={headerClasses}>

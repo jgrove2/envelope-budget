@@ -45,7 +45,6 @@ export const actions: Actions = {
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		} catch (e: any) {
 			console.log("New user has failed to register with username: " + username + "Error: " + e?.message);
-			console.log(e)
 			return fail(500, { message: 'An error has occurred'});
 		}
 		return redirect(302, '/budget');

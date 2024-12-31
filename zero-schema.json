@@ -1,9 +1,9 @@
 {
   "permissions": {
     "user": {},
-    "payee": {},
     "category": {},
     "category_group": {},
+    "payee": {},
     "transaction": {}
   },
   "schema": {
@@ -19,11 +19,11 @@
             "type": "json",
             "optional": false
           },
-          "creationDate": {
+          "creation_date": {
             "type": "number",
             "optional": false
           },
-          "groupId": {
+          "group_id": {
             "type": "string",
             "optional": false
           },
@@ -35,7 +35,7 @@
             "type": "string",
             "optional": false
           },
-          "userId": {
+          "user_id": {
             "type": "string",
             "optional": false
           }
@@ -43,7 +43,7 @@
         "relationships": {
           "group": {
             "sourceField": [
-              "groupId"
+              "group_id"
             ],
             "destField": [
               "id"
@@ -52,7 +52,7 @@
           },
           "user": {
             "sourceField": [
-              "userId"
+              "user_id"
             ],
             "destField": [
               "id"
@@ -75,7 +75,7 @@
             "type": "string",
             "optional": false
           },
-          "userId": {
+          "user_id": {
             "type": "string",
             "optional": false
           }
@@ -133,31 +133,44 @@
           "id"
         ],
         "columns": {
+          "category_id": {
+            "type": "string",
+            "optional": false
+          },
           "id": {
             "type": "string",
             "optional": false
           },
-          "payeeId": {
+          "payee_id": {
             "type": "string",
             "optional": false
           },
-          "transactionAmount": {
+          "transaction_amount": {
             "type": "number",
             "optional": false
           },
-          "transactionDate": {
+          "transaction_date": {
             "type": "number",
             "optional": false
           },
-          "userId": {
+          "user_id": {
             "type": "string",
             "optional": false
           }
         },
         "relationships": {
+          "category": {
+            "sourceField": [
+              "category_id"
+            ],
+            "destField": [
+              "id"
+            ],
+            "destSchema": "category"
+          },
           "payee": {
             "sourceField": [
-              "payeeId"
+              "payee_id"
             ],
             "destField": [
               "id"
@@ -166,7 +179,7 @@
           },
           "user": {
             "sourceField": [
-              "userId"
+              "user_id"
             ],
             "destField": [
               "id"

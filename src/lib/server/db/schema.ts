@@ -42,6 +42,7 @@ export const transaction = pgTable('transaction', {
 	transactionAmount: integer('transaction_amount').notNull(),
 	payeeId: text('payee_id').notNull().references(() => payee.id),
 	transactionDate: timestamp('transaction_date', { withTimezone: true, mode: 'date' }).notNull(),
+	categoryId: text('category_id').notNull().references(() => category.id),
 })
 
 
