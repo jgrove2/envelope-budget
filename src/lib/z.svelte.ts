@@ -21,11 +21,9 @@ export class ZCache {
 
 	build() {
 		// Get jwt and decode it
-		const options = get_z_options("anon");
-		console.log("Building Zero instance with options: ", options);
+		const options = get_z_options(this.zUser || "anon");
 		// Create new Zero instance
 		this.z = new Zero(options);
-		console.log("Zero instance created: ", this.z);
 		this.z.query
 	}
 

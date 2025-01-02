@@ -16,9 +16,8 @@ const payeeSchema = createTableSchema({
 	tableName: 'payee',
 	columns: {
 		id: 'string',
-		userId: 'string',
+		user_id: 'string',
 		name: 'string',
-		creationDate: 'number'
 	},
 	primaryKey: 'id',
 	relationships: {

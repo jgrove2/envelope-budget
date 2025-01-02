@@ -1,29 +1,29 @@
 <script lang="ts">
 	import { Query } from '$lib/query.svelte';
-	import ChevronDown from '$lib/svg/ChevronDown.svelte';
-	import ChevronUp from '$lib/svg/ChevronUp.svelte';
 	import { get_cache } from '$lib/z.svelte';
 	import ChevronToggle from './ChevronToggle.svelte';
 	import CustomModal from './CustomModal.svelte';
 	import { v4 } from 'uuid';
 	const { userID } = $props();
 	let cache = get_cache();
-	$inspect(userID);
+	let transactions = $derived(new Query(cache.z.query.transaction));
+	$inspect(transactions);
 	let categoryGroupQuery = cache.z.query.category_group.where('user_id', '=', userID.id);
 	let categoriesQuery = cache.z.query.category.where('user_id', '=', userID.id);
-	let transactionsQuery = cache.z.query.transaction.where('user_id', '=', userID.id);
 	let categoryGroups = new Query(categoryGroupQuery);
 	let categories = new Query(categoriesQuery);
-	let transactions = new Query(transactionsQuery);
+	let transactionsGrouped = $derived(Map.groupBy(transactions.data, ({ category_id }) => category_id));
 	let openCategories: number[] = $state([]);
 	$effect(() => {
-		openCategories = new Array(categoryGroups.data.length).fill(0);
-	})
+		openCategories = new Array(categoryGroups.data.length).fill(1);
+	});
 	let open: boolean = $state(false);
+	let openBudget: boolean = $state(false);
 	let settingsType = $state('edit');
 	let toggleEditName = $state(false);
 	let addSubCategory = $state(false);
 	let newCategoryName = $state('');
+	let selectedMonth = $state(new Date());
 	function settingsChange(event: Event) {
 		settingsType = (event.target as HTMLInputElement).value;
 	}
@@ -120,7 +120,123 @@
 	let editSubCategories = $state(false);
 	let subCategoryId = $state('');
 	let toggleEditCategoryName = $state(false);
+	let newBudget = $state({ categoryId: '', currentBudget: '0', offset: 0 });
+	function getCurrentMonthsOffset(categoryCreationDate: number) {
+		let selectedMonthIndex = selectedMonth.getMonth();
+		let selectedYear = selectedMonth.getFullYear();
+		if (categoryCreationDate === undefined) return 0;
+		let categoryCreationMonth = new Date(categoryCreationDate).getMonth();
+		let categoryCreationYear = new Date(categoryCreationDate).getFullYear();
+		let monthsDifference =
+			(selectedYear - categoryCreationYear) * 12 - categoryCreationMonth + selectedMonthIndex;
+		return monthsDifference;
+	}
+	function sumSubCategoryBudgets(categoryGroupId: string) {
+		if (categoryGroupId === undefined) return 0;
+		let sum = 0;
+		categories.data.forEach((category) => {
+			if (category.group_id === categoryGroupId) {
+				sum +=
+					category?.budget[getCurrentMonthsOffset(category.creation_date)] || 0;
+			}
+		});
+		return sum;
+	}
+	function getSubCategorySpent(categoryId: string) {
+		if (categoryId === undefined) return 0;
+		let sum = 0;
+		transactionsGrouped.get(categoryId)?.forEach((transaction) => {
+			let transactionDate = new Date(transaction.transaction_date);
+			if (
+				transaction.category_id === categoryId &&
+				(transactionDate.getMonth() === selectedMonth.getMonth() &&
+					transactionDate.getFullYear() === selectedMonth.getFullYear())
+			) {
+				sum += transaction.transaction_amount;
+			}
+		});
+		return sum;
+	}
+	function sumSubCategoriesSpent(categoryGroupId: string) {
+		if (categoryGroupId === undefined) return 0;
+		let sum = 0;
+		categories.data.forEach((category) => {
+			if (category.group_id === categoryGroupId) {
+				sum += getSubCategorySpent(category.id);
+			}
+		});
+		return sum;
+	}
+	function sumSubCategoriesBalance(categoryGroupId: string) {
+		if (categoryGroupId === undefined) return 0;
+		let sum = 0;
+		categories.data.forEach((category) => {
+			if (category.group_id === categoryGroupId) {
+				sum += getSubCategoryBalance(category.id, category.creation_date, category.budget);
+			}
+		});
+		return sum;
+	}
+	function getSubCategoryBalance(categoryId: string, creationDate: number, budget: Record<string, number>) {
+		if (categoryId === undefined) return 0;
+		let sum = 0;
+		transactionsGrouped.get(categoryId)?.forEach((transaction) => {
+			let transactionDate = new Date(transaction.transaction_date);
+			if (
+				transaction.category_id === categoryId &&
+				(transactionDate < selectedMonth ||
+					(transactionDate.getMonth() === selectedMonth.getMonth() &&
+						transactionDate.getFullYear() === selectedMonth.getFullYear()))
+			) {
+				sum += transaction.transaction_amount;
+			}
+		});
+		if(creationDate === undefined || budget === undefined) return 0;
+		let offset = getCurrentMonthsOffset(
+			creationDate,
+		);
+		Object.keys(budget).forEach((key: string) => {
+			if (parseInt(key) <= offset) {
+				sum += budget[parseInt(key)];
+			}
+		});
+		return sum;
+	}
+	function setBudget() {
+		let categoryBudget = Object.assign(
+			{},
+			categories.data.find((category) => category.id === newBudget.categoryId)?.budget
+		);
+		if (categoryBudget === undefined) {
+			alert('Please select a category to set a budget');
+			return;
+		}
+		categoryBudget[newBudget.offset] = parseInt(newBudget.currentBudget);
+		cache.z.mutate.category.update({ id: newBudget.categoryId, budget: categoryBudget });
+		newBudget = { categoryId: '', currentBudget: '0', offset: 0 };
+		openBudget = false;
+	}
 </script>
+
+{#snippet budgetDialog()}
+	<div class="settings-modal">
+		<div class="modal-header">
+			<h1>Budget</h1>
+			<button onclick={() => (openBudget = false)}>×</button>
+		</div>
+		<div class="setBudget">
+			<label>
+				Budget Amount: <input
+					inputmode="numeric"
+					pattern="[0-9]\.*"
+					type="text"
+					bind:value={newBudget.currentBudget}
+				/>
+			</label>
+			<button onclick={setBudget}>Set Budget</button>
+		</div>
+	</div>
+{/snippet}
 
 {#snippet dialogContent()}
 	<div class="settings-modal">
@@ -257,10 +373,35 @@
 
 <div class="budgetTable">
 	<CustomModal {open} {dialogContent} />
+	<CustomModal open={openBudget} dialogContent={budgetDialog} />
+	<div class="caption">
+		<span></span>
+		<span class="date-selection">
+			<button
+				onclick={() => {
+					if (selectedMonth.getMonth() === 0) {
+						selectedMonth = new Date(selectedMonth.getFullYear() - 1, 11);
+					} else {
+						selectedMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1);
+					}
+				}}>{'<'}</button
+			>
+			<span class="date"
+				>{`${selectedMonth.toLocaleDateString('default', { month: 'long' })} ${selectedMonth.getFullYear()}`}</span
+			>
+			<button
+				onclick={() => {
+					if (selectedMonth.getMonth() === 11) {
+						selectedMonth = new Date(selectedMonth.getFullYear() + 1, 0);
+					} else {
+						selectedMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1);
+					}
+				}}>{'>'}</button
+			>
+		</span>
+		<button class="settings" onclick={() => (open = true)}> Settings </button>
+	</div>
 	<table>
-		<caption>
-			<button class="settings" onclick={() => (open = true)}> Settings </button>
-		</caption>
 		<colgroup><col /><col /><col /><col /></colgroup>
 		<thead>
 			<tr>
@@ -280,15 +421,18 @@
 			{/if}
 			{#each categoryGroups.data as categoryGroup, index}
 				<tr>
-					<td class="classToggle" onclick={() => {
-						openCategories[index] = openCategories[index] ? 0 : 1;
-					}}>
-						 <ChevronToggle direction={openCategories[index]}/>
+					<td
+						class="classToggle"
+						onclick={() => {
+							openCategories[index] = openCategories[index] ? 0 : 1;
+						}}
+					>
+						<ChevronToggle direction={openCategories[index]} />
 						<span>{categoryGroup.name}</span>
 					</td>
-					<td>$0.00</td>
-					<td>$0.00</td>
-					<td>$0.00</td>
+					<td>{sumSubCategoriesSpent(categoryGroup.id)}</td>
+					<td>{`${sumSubCategoryBudgets(categoryGroup.id)}`}</td>
+					<td>{sumSubCategoriesBalance(categoryGroup.id)}</td>
 				</tr>
 				{#if openCategories[index]}
 					{#each categories.data as category}
@@ -297,9 +441,22 @@
 								<td>
 									<span>{category.name}</span>
 								</td>
-								<td>$0.00</td>
-								<td>$0.00</td>
-								<td>$0.00</td>
+								<td>{getSubCategorySpent(category.id)}</td>
+								<td
+									><button
+										onclick={() => {
+											let offset = getCurrentMonthsOffset(category.creation_date);
+											newBudget = {
+												categoryId: category.id,
+												currentBudget: `${category.budget[offset] || 0}`,
+												offset: offset
+											};
+											openBudget = true;
+										}}
+										>{`${category.budget[getCurrentMonthsOffset(category.creation_date)] || 0}`}</button
+									></td
+								>
+								<td>{getSubCategoryBalance(category.id, category.creation_date, category.budget)}</td>
 							</tr>
 						{/if}
 					{/each}
@@ -347,27 +504,47 @@
 	}
 	.budgetTable {
 		display: flex;
+		flex-direction: column;
 		width: 100%;
-		justify-content: center;
+		align-items: center;
 		table {
 			border: 2px solid var(---text);
 			border-collapse: collapse;
-			caption {
-				color: var(---text);
-				text-align: right;
-				padding: 0.5rem;
-				.settings {
-					font-size: 0.75rem;
-					padding: 0.25rem;
-					background: var(---background);
-					border: 1px solid var(---text);
-					border-radius: 5px;
-					cursor: pointer;
-					box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
-				}
-				.settings:active {
-					box-shadow: none;
-				}
+		}
+	}
+	.caption {
+		color: var(---text);
+		padding: 0.5rem;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		.settings {
+			font-size: 0.75rem;
+			padding: 0.25rem;
+			background: var(---background);
+			border: 1px solid var(---text);
+			border-radius: 5px;
+			cursor: pointer;
+			box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+		}
+		.settings:active {
+			box-shadow: none;
+		}
+		.date-selection {
+			width: 12rem;
+			display: flex;
+			justify-content: space-between;
+			button {
+				font-size: 1rem;
+				padding: 0.25rem;
+				border: 1px solid var(---text);
+				border-radius: 5px;
+				cursor: pointer;
+				background: none;
+			}
+			.date {
+				width: 10rem;
+				text-align: center;
 			}
 		}
 	}
@@ -381,6 +558,9 @@
 					font-size: 0.75rem;
 				}
 			}
+			.caption {
+				width: 95%;
+			}
 		}
 	}
 	@media only screen and (min-width: 701px) {
@@ -392,6 +572,9 @@
 					border: 2px solid var(---text);
 					font-size: 1rem;
 				}
+			}
+			.caption {
+				width: 75%;
 			}
 		}
 	}

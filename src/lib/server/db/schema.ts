@@ -17,7 +17,7 @@ export const session = pgTable('session', {
 export const payee = pgTable('payee', {
 	id: text('id').primaryKey(),
 	userId: text('user_id').notNull().references(() => user.id),
-	name: text('name').notNull().unique(),
+	name: text('name').notNull(),
 })
 
 export const category = pgTable('category', {

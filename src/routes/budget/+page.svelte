@@ -6,13 +6,12 @@
 	let cache = get_cache();
 	let { data }: { data: PageServerData } = $props();
 	let userID = $state(data.user.id);
-	// $effect(() => {
-	// 	if(cache.getCurrentUserID() !== userID) {
-	// 		cache.setUser(userID);
-	// 	}
-	// })
+	$effect(() => {
+		if(cache.getCurrentUserID() !== userID) {
+			cache.setUser(userID);
+		}
+	})
 	let userQuery = cache.z.query.user.where('id', '=', data.user.id);
-	const users = new Query(userQuery);
 </script>
 
 <BudgetTable userID={data.user}/>

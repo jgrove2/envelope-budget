@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-    let {open, dialogContent } = $props();
+    let {open = $bindable(), dialogContent } = $props();
     let dialog: HTMLDialogElement | null = $state(null);
     onMount(() => {
         dialog = dialog || document.querySelector('dialog');
