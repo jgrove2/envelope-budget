@@ -22,7 +22,7 @@ const payeeSchema = createTableSchema({
 	primaryKey: 'id',
 	relationships: {
 		user: {
-			sourceField: 'userId',
+			sourceField: 'user_id',
 			destSchema: userSchema,
 			destField: 'id'
 		}
@@ -39,7 +39,7 @@ const categoryGroupSchema = createTableSchema({
 	primaryKey: 'id',
 	relationships: {
 		user: {
-			sourceField: 'userId',
+			sourceField: 'user_id',
 			destSchema: userSchema,
 			destField: 'id'
 		}

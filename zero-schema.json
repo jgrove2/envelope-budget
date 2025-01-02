@@ -83,7 +83,7 @@
         "relationships": {
           "user": {
             "sourceField": [
-              "userId"
+              "user_id"
             ],
             "destField": [
               "id"
@@ -114,7 +114,7 @@
         "relationships": {
           "user": {
             "sourceField": [
-              "userId"
+              "user_id"
             ],
             "destField": [
               "id"
