@@ -18,7 +18,8 @@
 <div class="budget-wrapper">
     <div class={headerClasses}>
         <span>Envelope</span>
-		<span class={page.url.pathname === '/budget' ? 'current' : ''}>Home</span>
+		<a class={page.url.pathname === '/budget' ? 'current' : ''} href="/budget">Home</a>
+		<a class={page.url.pathname === '/budget/transactions' ? 'current' : ''} href="/budget/transactions">Transactions</a>
 		<form method="post" action="?/logout" use:enhance>
 			<button>Sign out</button>
 		</form>
@@ -45,12 +46,14 @@
 		gap: 2rem;
 		background-color: var(---background);
 		color: var(---text);
-		span {
+		a, span {
 			font-size: 1.25rem;
 			font-weight: bold;
+			text-decoration: none;
+			color: var(---text);
 		}
 		.current {
-			text-decoration: underline;
+			text-decoration: underline !important;
 			font-weight: bolder;
 		}
 		form {

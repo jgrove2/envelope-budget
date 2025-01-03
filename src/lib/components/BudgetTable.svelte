@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Query } from '$lib/query.svelte';
+	import type { Category, Transaction } from '$lib/schema';
 	import { get_cache } from '$lib/z.svelte';
 	import ChevronToggle from './ChevronToggle.svelte';
 	import CustomModal from './CustomModal.svelte';
@@ -7,12 +8,13 @@
 	const { userID } = $props();
 	let cache = get_cache();
 	let transactions = $derived(new Query(cache.z.query.transaction));
-	$inspect(transactions);
 	let categoryGroupQuery = cache.z.query.category_group.where('user_id', '=', userID.id);
 	let categoriesQuery = cache.z.query.category.where('user_id', '=', userID.id);
 	let categoryGroups = new Query(categoryGroupQuery);
 	let categories = new Query(categoriesQuery);
-	let transactionsGrouped = $derived(Map.groupBy(transactions.data, ({ category_id }) => category_id));
+	let transactionsGrouped = $derived(
+		Map.groupBy(transactions.data, ({ category_id }) => category_id)
+	);
 	let openCategories: number[] = $state([]);
 	$effect(() => {
 		openCategories = new Array(categoryGroups.data.length).fill(1);
@@ -136,8 +138,7 @@
 		let sum = 0;
 		categories.data.forEach((category) => {
 			if (category.group_id === categoryGroupId) {
-				sum +=
-					category?.budget[getCurrentMonthsOffset(category.creation_date)] || 0;
+				sum += category?.budget[getCurrentMonthsOffset(category.creation_date)] || 0;
 			}
 		});
 		return sum;
@@ -149,8 +150,8 @@
 			let transactionDate = new Date(transaction.transaction_date);
 			if (
 				transaction.category_id === categoryId &&
-				(transactionDate.getMonth() === selectedMonth.getMonth() &&
-					transactionDate.getFullYear() === selectedMonth.getFullYear())
+				transactionDate.getMonth() === selectedMonth.getMonth() &&
+				transactionDate.getFullYear() === selectedMonth.getFullYear()
 			) {
 				sum += transaction.transaction_amount;
 			}
@@ -177,7 +178,11 @@
 		});
 		return sum;
 	}
-	function getSubCategoryBalance(categoryId: string, creationDate: number, budget: Record<string, number>) {
+	function getSubCategoryBalance(
+		categoryId: string,
+		creationDate: number,
+		budget: Record<string, number>
+	) {
 		if (categoryId === undefined) return 0;
 		let sum = 0;
 		transactionsGrouped.get(categoryId)?.forEach((transaction) => {
@@ -191,10 +196,8 @@
 				sum += transaction.transaction_amount;
 			}
 		});
-		if(creationDate === undefined || budget === undefined) return 0;
-		let offset = getCurrentMonthsOffset(
-			creationDate,
-		);
+		if (creationDate === undefined || budget === undefined) return 0;
+		let offset = getCurrentMonthsOffset(creationDate);
 		Object.keys(budget).forEach((key: string) => {
 			if (parseInt(key) <= offset) {
 				sum += budget[parseInt(key)];
@@ -215,6 +218,51 @@
 		cache.z.mutate.category.update({ id: newBudget.categoryId, budget: categoryBudget });
 		newBudget = { categoryId: '', currentBudget: '0', offset: 0 };
 		openBudget = false;
+	}
+	function getTotalBalance() {
+		let total = 0;
+		let IncomeId = categoryGroups.data.find((group) => group.name === 'Income')?.id;
+		if (IncomeId === undefined) return 'Income Group not found';
+		let IncomeCategories = categories.data.filter((category) => category.group_id === IncomeId);
+		IncomeCategories.forEach((category) => {
+			transactionsGrouped.get(category.id)?.forEach((transaction) => {
+					let transactionDate = new Date(transaction.transaction_date);
+					if (
+						transaction.category_id === category.id &&
+						(transactionDate < selectedMonth ||
+							(transactionDate.getMonth() === selectedMonth.getMonth() &&
+								transactionDate.getFullYear() === selectedMonth.getFullYear()))
+					) {
+						total += transaction.transaction_amount;
+					}
+				});
+		});
+		categories.data.forEach((category) => {
+			if (category.group_id !== IncomeId) {
+				let spent = 0;
+				transactionsGrouped.get(category.id)?.forEach((transaction) => {
+					let transactionDate = new Date(transaction.transaction_date);
+					if (
+						transaction.category_id === category.id &&
+						(transactionDate < selectedMonth ||
+							(transactionDate.getMonth() === selectedMonth.getMonth() &&
+								transactionDate.getFullYear() === selectedMonth.getFullYear()))
+					) {
+						spent += transaction.transaction_amount;
+					}
+				});
+				let offset = getCurrentMonthsOffset(category.creation_date);
+				let budgeted = 0;
+				Object.keys(category.budget).forEach((key: string) => {
+					if (parseInt(key) <= offset) {
+						budgeted += category.budget[parseInt(key)];
+					}
+				});
+				if(budgeted > -1 * spent) total -= budgeted; 
+				else total += spent;
+			}
+		});
+		return `$${total.toFixed(2)}`;
 	}
 </script>
 
@@ -358,7 +406,8 @@
 						<label>
 							Update Category Name: <input
 								type="text"
-								placeholder={categories.data.find((cat) => cat.id === subCategoryId)?.name}
+								placeholder={categories.data.find((cat: Category) => cat.id === subCategoryId)
+									?.name}
 								bind:value={newCategoryGroup}
 							/>
 						</label>
@@ -375,7 +424,7 @@
 	<CustomModal {open} {dialogContent} />
 	<CustomModal open={openBudget} dialogContent={budgetDialog} />
 	<div class="caption">
-		<span></span>
+		<span>{getTotalBalance()}</span>
 		<span class="date-selection">
 			<button
 				onclick={() => {
@@ -420,21 +469,70 @@
 				</tr>
 			{/if}
 			{#each categoryGroups.data as categoryGroup, index}
-				<tr>
-					<td
-						class="classToggle"
-						onclick={() => {
-							openCategories[index] = openCategories[index] ? 0 : 1;
-						}}
-					>
-						<ChevronToggle direction={openCategories[index]} />
-						<span>{categoryGroup.name}</span>
-					</td>
-					<td>{sumSubCategoriesSpent(categoryGroup.id)}</td>
-					<td>{`${sumSubCategoryBudgets(categoryGroup.id)}`}</td>
-					<td>{sumSubCategoriesBalance(categoryGroup.id)}</td>
-				</tr>
-				{#if openCategories[index]}
+				{#if categoryGroup.name !== 'Income'}
+					<tr>
+						<td
+							class="classToggle"
+							onclick={() => {
+								openCategories[index] = openCategories[index] ? 0 : 1;
+							}}
+						>
+							<ChevronToggle direction={openCategories[index]} />
+							<span>{categoryGroup.name}</span>
+						</td>
+						<td>{sumSubCategoriesSpent(categoryGroup.id)}</td>
+						<td>{`${sumSubCategoryBudgets(categoryGroup.id)}`}</td>
+						<td>{sumSubCategoriesBalance(categoryGroup.id)}</td>
+					</tr>
+					{#if openCategories[index]}
+						{#each categories.data as category}
+							{#if category.group_id === categoryGroup.id}
+								<tr>
+									<td>
+										<span>{category.name}</span>
+									</td>
+									<td>{getSubCategorySpent(category.id)}</td>
+									<td
+										><button
+											onclick={() => {
+												let offset = getCurrentMonthsOffset(category.creation_date);
+												newBudget = {
+													categoryId: category.id,
+													currentBudget: `${category.budget[offset] || 0}`,
+													offset: offset
+												};
+												openBudget = true;
+											}}
+											>{`${category.budget[getCurrentMonthsOffset(category.creation_date)] || 0}`}</button
+										></td
+									>
+									<td
+										>{getSubCategoryBalance(
+											category.id,
+											category.creation_date,
+											category.budget
+										)}</td
+									>
+								</tr>
+							{/if}
+						{/each}
+					{/if}
+				{/if}
+			{/each}
+		</tbody>
+	</table>
+	{#each categoryGroups.data as categoryGroup}
+		{#if categoryGroup.name === 'Income'}
+			<h2>Income</h2>
+			<table>
+				<colgroup><col /><col /></colgroup>
+				<thead>
+					<tr>
+						<td>Name</td>
+						<td>Total</td>
+					</tr>
+				</thead>
+				<tbody>
 					{#each categories.data as category}
 						{#if category.group_id === categoryGroup.id}
 							<tr>
@@ -442,28 +540,13 @@
 									<span>{category.name}</span>
 								</td>
 								<td>{getSubCategorySpent(category.id)}</td>
-								<td
-									><button
-										onclick={() => {
-											let offset = getCurrentMonthsOffset(category.creation_date);
-											newBudget = {
-												categoryId: category.id,
-												currentBudget: `${category.budget[offset] || 0}`,
-												offset: offset
-											};
-											openBudget = true;
-										}}
-										>{`${category.budget[getCurrentMonthsOffset(category.creation_date)] || 0}`}</button
-									></td
-								>
-								<td>{getSubCategoryBalance(category.id, category.creation_date, category.budget)}</td>
 							</tr>
 						{/if}
 					{/each}
-				{/if}
-			{/each}
-		</tbody>
-	</table>
+				</tbody>
+			</table>
+		{/if}
+	{/each}
 </div>
 
 <style>

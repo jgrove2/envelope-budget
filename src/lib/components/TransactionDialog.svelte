@@ -212,7 +212,7 @@
 		}
 	}
 	.create-transaction {
-		position: absolute;
+		position: sticky;
 		bottom: 1em;
 		margin-left: auto;
 		margin-right: auto;
