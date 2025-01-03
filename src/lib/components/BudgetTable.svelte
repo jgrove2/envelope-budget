@@ -461,7 +461,7 @@
 		<button class="settings" onclick={() => (open = true)}> Settings </button>
 	</div>
 	<table>
-		<colgroup><col width="30%"/><col width="20%"/><col width="25%"/><col width="25%"/></colgroup>
+		<colgroup><col width="30%"/><col width="30%"/><col width="20%"/><col width="20%"/></colgroup>
 		<thead>
 			<tr>
 				<td>Name</td>
@@ -535,7 +535,7 @@
 	{#each categoryGroups.data as categoryGroup}
 		{#if categoryGroup.name === 'Income'}
 			<h2>Income</h2>
-			<table>
+			<table class="income">
 				<colgroup><col /><col /></colgroup>
 				<thead>
 					<tr>
@@ -656,6 +656,7 @@
 		flex-direction: column;
 		width: 100%;
 		align-items: center;
+		padding-bottom: 5rem;
 		table {
 			border: 2px solid var(---text);
 			border-collapse: collapse;

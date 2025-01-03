@@ -32,7 +32,7 @@
 
 <style>
 	.budget-wrapper {
-		height: 100dvh;
+		/* height: 100dvh; */
 		background-color: var(---background);
 	}
 	.header {
