@@ -4,6 +4,7 @@
 	import { get_cache } from '$lib/z.svelte';
 	import { v4 } from 'uuid';
 	import type { Category, Schema } from '$lib/schema';
+	import { page } from '$app/state';
 	let cache = get_cache();
 	let userID = $state('');
 	let payees: any | undefined = $derived(new Query(cache.z.query.payee.where('user_id', '=', userID)));
@@ -70,7 +71,10 @@
 	}
 </script>
 
-<button class="create-transaction" onclick={() => dialog?.showModal()}><span>+</span></button>
+<div class="create-transaction">
+	<a href="/budget/transactions" class={page.url.pathname === '/budget/transactions' ? 'current' : ''}>Transactions</a>
+	<button onclick={() => dialog?.showModal()}><span>Create Transaction</span></button>
+</div>
 <dialog id="create-transaction-dialog">
 	<h2 class="new-transaction-header">New Transaction</h2>
 	<form
@@ -213,29 +217,49 @@
 	}
 	.create-transaction {
 		position: sticky;
-		bottom: 1em;
 		margin-left: auto;
 		margin-right: auto;
 		left: 0;
-		right: 0;
+		bottom: 0;
 		text-align: center;
 		display: flex;
-		justify-content: center;
+		justify-content: space-around;
 		align-items: center;
-		width: fit-content;
+		width: 100dvw;
 		height: 2rem;
-		width: 2rem;
-		padding: 2rem;
-		border-radius: 4rem;
+		padding: 1rem 0 1rem 0;
 		background-color: var(---text);
 		color: var(---background);
-		font-size: 2em;
+		font-size: 1.5rem;
 		border: none;
 		cursor: pointer;
-		span {
-			width: fit-content;
-			height: fit-content;
-			line-height: 1rem;
+		button {
+			background-color: var(---text);
+			border: none;
+			font-size: 1em;
+			span {
+				color: var(---background);
+				font-size: 1em;
+			}
+		}
+		a {
+			text-decoration: none;
+			color: var(---background)
+		}
+		.current {
+			text-decoration: underline !important;
+		}
+	}
+	@media (max-width: 700px) {
+		.create-transaction {
+			display: flex;
+			width: 100dvw;
+			padding-top: 1rem;
+			padding-bottom: 1rem;
+			padding-left: 0;
+			padding-right: 0;
+			gap: 1rem;
+			font-size: 1rem;
 		}
 	}
 	dialog {

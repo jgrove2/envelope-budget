@@ -1,10 +1,13 @@
 html {
 	---background: #f2efec;
+    ---background-accent: #dbcfc3;
 	---text: #273135;
 	---primary: #825335;
 	---secondary: #d6b19a;
 	---accent: #905c3c;
     ---accent-glass: rgba(144, 92, 60, 0.7);
+    ---red: red;
+    ---greem: green;
     overflow-x: hidden;
     height: 100%;
 }

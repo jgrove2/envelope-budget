@@ -19,7 +19,6 @@
     <div class={headerClasses}>
         <span>Envelope</span>
 		<a class={page.url.pathname === '/budget' ? 'current' : ''} href="/budget">Home</a>
-		<a class={page.url.pathname === '/budget/transactions' ? 'current' : ''} href="/budget/transactions">Transactions</a>
 		<form method="post" action="?/logout" use:enhance>
 			<button>Sign out</button>
 		</form>
@@ -76,21 +75,19 @@
 	.scrolled {
 		box-shadow: 0px 3px 8px 1px rgba(0, 0, 0, 0.4);
 	}
-	.modal {
-		.modal-header {
-			display: flex;
-			justify-content: space-between;
-			button {
-				font-size: 2rem;
-				background: none;
-				border: none;
-				cursor: pointer;
-				line-height: 2rem;
-				height: 2rem;
+	@media (max-width: 700px) {
+		.header {
+			padding: 1rem;
+			gap: 1rem;
+			a, span {
+				font-size: 1rem;
+			}
+			form {
+				button {
+					font-size: 1rem;
+				}
 			}
 		}
-		.modal-body {
-			padding: 1rem;
-		}
 	}
+	
 </style>

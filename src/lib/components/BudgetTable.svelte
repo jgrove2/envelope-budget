@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { money } from '$lib/helpers/money';
 	import { Query } from '$lib/query.svelte';
 	import type { Category, Transaction } from '$lib/schema';
 	import { get_cache } from '$lib/z.svelte';
@@ -122,7 +123,7 @@
 	let editSubCategories = $state(false);
 	let subCategoryId = $state('');
 	let toggleEditCategoryName = $state(false);
-	let newBudget = $state({ categoryId: '', currentBudget: '0', offset: 0 });
+	let newBudget = $state({name: "", categoryId: '', currentBudget: '0', offset: 0 });
 	function getCurrentMonthsOffset(categoryCreationDate: number) {
 		let selectedMonthIndex = selectedMonth.getMonth();
 		let selectedYear = selectedMonth.getFullYear();
@@ -216,26 +217,30 @@
 		}
 		categoryBudget[newBudget.offset] = parseInt(newBudget.currentBudget);
 		cache.z.mutate.category.update({ id: newBudget.categoryId, budget: categoryBudget });
-		newBudget = { categoryId: '', currentBudget: '0', offset: 0 };
+		newBudget = { name: "", categoryId: '', currentBudget: '0', offset: 0 };
 		openBudget = false;
 	}
 	function getTotalBalance() {
 		let total = 0;
+		console.log(categories, transactionsGrouped);
+		if (!categories) return 0;
+		if (!categoryGroups.data) return 0;
+		if (!transactionsGrouped) return 0;
 		let IncomeId = categoryGroups.data.find((group) => group.name === 'Income')?.id;
-		if (IncomeId === undefined) return 'Income Group not found';
-		let IncomeCategories = categories.data.filter((category) => category.group_id === IncomeId);
+		if (IncomeId === undefined) return 0;
+		let IncomeCategories = categories.data?.filter((category) => category.group_id === IncomeId);
 		IncomeCategories.forEach((category) => {
 			transactionsGrouped.get(category.id)?.forEach((transaction) => {
-					let transactionDate = new Date(transaction.transaction_date);
-					if (
-						transaction.category_id === category.id &&
-						(transactionDate < selectedMonth ||
-							(transactionDate.getMonth() === selectedMonth.getMonth() &&
-								transactionDate.getFullYear() === selectedMonth.getFullYear()))
-					) {
-						total += transaction.transaction_amount;
-					}
-				});
+				let transactionDate = new Date(transaction.transaction_date);
+				if (
+					transaction.category_id === category.id &&
+					(transactionDate < selectedMonth ||
+						(transactionDate.getMonth() === selectedMonth.getMonth() &&
+							transactionDate.getFullYear() === selectedMonth.getFullYear()))
+				) {
+					total += transaction.transaction_amount;
+				}
+			});
 		});
 		categories.data.forEach((category) => {
 			if (category.group_id !== IncomeId) {
@@ -258,30 +263,35 @@
 						budgeted += category.budget[parseInt(key)];
 					}
 				});
-				if(budgeted > -1 * spent) total -= budgeted; 
+				if (budgeted > -1 * spent) total -= budgeted;
 				else total += spent;
 			}
 		});
-		return `$${total.toFixed(2)}`;
+		return total;
 	}
+	let leftOverBalance = $state(0);
+	$effect(() => {
+		if (categories.data.length > 0 && transactionsGrouped !== undefined)
+			leftOverBalance = getTotalBalance();
+	});
 </script>
 
 {#snippet budgetDialog()}
-	<div class="settings-modal">
+	<div class="budget-modal">
 		<div class="modal-header">
-			<h1>Budget</h1>
+			<h1>{newBudget.name}</h1>
 			<button onclick={() => (openBudget = false)}>×</button>
 		</div>
-		<div class="setBudget">
+		<div class="modal-body">
 			<label>
-				Budget Amount: <input
-					inputmode="numeric"
-					pattern="[0-9]\.*"
+				Budget Amount <br><input
+					inputmode="decimal"
 					type="text"
 					bind:value={newBudget.currentBudget}
 				/>
 			</label>
-			<button onclick={setBudget}>Set Budget</button>
+			<br>
+			<button onclick={setBudget}>Save</button>
 		</div>
 	</div>
 {/snippet}
@@ -424,7 +434,7 @@
 	<CustomModal {open} {dialogContent} />
 	<CustomModal open={openBudget} dialogContent={budgetDialog} />
 	<div class="caption">
-		<span>{getTotalBalance()}</span>
+		<span class={leftOverBalance <= 0 ? 'red' : 'green'}>{money.format(leftOverBalance)}</span>
 		<span class="date-selection">
 			<button
 				onclick={() => {
@@ -451,12 +461,12 @@
 		<button class="settings" onclick={() => (open = true)}> Settings </button>
 	</div>
 	<table>
-		<colgroup><col /><col /><col /><col /></colgroup>
+		<colgroup><col width="30%"/><col width="20%"/><col width="25%"/><col width="25%"/></colgroup>
 		<thead>
 			<tr>
 				<td>Name</td>
-				<td>Spent</td>
 				<td>Budgeted</td>
+				<td>Spent</td>
 				<td>Balance</td>
 			</tr>
 		</thead>
@@ -470,7 +480,7 @@
 			{/if}
 			{#each categoryGroups.data as categoryGroup, index}
 				{#if categoryGroup.name !== 'Income'}
-					<tr>
+					<tr class="table-header">
 						<td
 							class="classToggle"
 							onclick={() => {
@@ -480,9 +490,9 @@
 							<ChevronToggle direction={openCategories[index]} />
 							<span>{categoryGroup.name}</span>
 						</td>
-						<td>{sumSubCategoriesSpent(categoryGroup.id)}</td>
-						<td>{`${sumSubCategoryBudgets(categoryGroup.id)}`}</td>
-						<td>{sumSubCategoriesBalance(categoryGroup.id)}</td>
+						<td class="center">{money.format(sumSubCategoryBudgets(categoryGroup.id))}</td>
+						<td class="center">{money.format(sumSubCategoriesSpent(categoryGroup.id))}</td>
+						<td class={sumSubCategoriesBalance(categoryGroup.id) <= 0? 'red center' : 'green center'}>{money.format(sumSubCategoriesBalance(categoryGroup.id))}</td>
 					</tr>
 					{#if openCategories[index]}
 						{#each categories.data as category}
@@ -491,26 +501,27 @@
 									<td>
 										<span>{category.name}</span>
 									</td>
-									<td>{getSubCategorySpent(category.id)}</td>
-									<td
+									<td class="center"
 										><button
+											class={`budget-button`}
 											onclick={() => {
 												let offset = getCurrentMonthsOffset(category.creation_date);
 												newBudget = {
+													name: category.name,
 													categoryId: category.id,
 													currentBudget: `${category.budget[offset] || 0}`,
 													offset: offset
 												};
 												openBudget = true;
 											}}
-											>{`${category.budget[getCurrentMonthsOffset(category.creation_date)] || 0}`}</button
+											>{money.format(
+												category.budget[getCurrentMonthsOffset(category.creation_date)] || 0)}</button
 										></td
 									>
-									<td
-										>{getSubCategoryBalance(
-											category.id,
-											category.creation_date,
-											category.budget
+									<td class="center">{money.format(getSubCategorySpent(category.id))}</td>
+									<td class={getSubCategoryBalance(category.id, category.creation_date, category.budget) < 0 ? 'red center' : 'green center'}
+										>{money.format(
+											getSubCategoryBalance(category.id, category.creation_date, category.budget)
 										)}</td
 									>
 								</tr>
@@ -539,7 +550,7 @@
 								<td>
 									<span>{category.name}</span>
 								</td>
-								<td>{getSubCategorySpent(category.id)}</td>
+								<td>{money.format(getSubCategorySpent(category.id))}</td>
 							</tr>
 						{/if}
 					{/each}
@@ -550,6 +561,13 @@
 </div>
 
 <style>
+	.red {
+		color: red !important;
+	}
+	.green {
+		color: green !important;
+	}
+
 	.settings-modal {
 		.modal-header {
 			display: flex;
@@ -579,8 +597,56 @@
 				width: 10rem;
 			}
 		}
-		.add {
+	}
+	.budget-modal {
+		display: flex;
+		flex-direction: column;
+		.modal-header {
+			display: flex;
+			justify-content: space-between;
+			button {
+				font-size: 2rem;
+				background: none;
+				border: none;
+				cursor: pointer;
+				line-height: 2rem;
+				height: 2rem;
+			}
 		}
+		.modal-body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			label {
+				font-size: 1.25rem;
+				text-align: center;
+				input {
+					margin-top: 0.5rem;
+					font-size: 1rem;
+					padding: 0.5rem;
+					background-color: var(---background);
+					border: 1px solid var(---text);
+					border-radius: 5px;
+				}
+			}
+			button {
+				padding: 0.5rem;
+				background-color: var(---background);
+				border: 1px solid var(---text);
+				border-radius: 5px;
+				margin-top: 1rem;
+				box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+				&:active {
+					box-shadow: none;
+				}
+			}
+		}
+	}
+	.table-header {
+		background: var(---background-accent);
+		color: var(---text);
+		font-weight: bold;
 	}
 	.classToggle {
 		cursor: pointer;
@@ -593,6 +659,9 @@
 		table {
 			border: 2px solid var(---text);
 			border-collapse: collapse;
+			.center {
+				text-align: center;
+			}
 		}
 	}
 	.caption {
@@ -617,13 +686,17 @@
 			width: 12rem;
 			display: flex;
 			justify-content: space-between;
+			align-items: center;
 			button {
 				font-size: 1rem;
-				padding: 0.25rem;
 				border: 1px solid var(---text);
-				border-radius: 5px;
+				border-radius: 2rem;
 				cursor: pointer;
 				background: none;
+				box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+				&:active {
+					box-shadow: none;
+				}
 			}
 			.date {
 				width: 10rem;
@@ -631,10 +704,19 @@
 			}
 		}
 	}
+	.budget-button {
+		background-color: var(---background);
+		font-size: 1em;
+		border: 1px solid var(---text);
+		border-radius: 4px;
+		padding: 0.25 rem;
+		cursor: pointer;
+	}
 	@media only screen and (max-width: 700px) {
 		.budgetTable {
 			table {
 				width: 95%;
+				table-layout: fixed;
 				:is(td) {
 					padding: 0.5rem;
 					border: 1px solid var(---text);
@@ -643,6 +725,12 @@
 			}
 			.caption {
 				width: 95%;
+				.date-selection {
+					width: 9rem;
+					.date {
+						font-size: 0.75rem;
+					}
+				}
 			}
 		}
 	}
@@ -650,6 +738,9 @@
 		.budgetTable {
 			table {
 				width: 75%;
+				.center {
+					text-align: center;
+				}
 				:is(td) {
 					padding: 0.75rem;
 					border: 2px solid var(---text);
