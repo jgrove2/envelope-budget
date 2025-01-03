@@ -657,6 +657,7 @@
 		width: 100%;
 		align-items: center;
 		padding-bottom: 5rem;
+		min-height: 100dvh;
 		table {
 			border: 2px solid var(---text);
 			border-collapse: collapse;
