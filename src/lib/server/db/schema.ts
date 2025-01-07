@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, integer, timestamp, jsonb, numeric } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -39,7 +39,7 @@ export const categoryGroup = pgTable('category_group', {
 export const transaction = pgTable('transaction', {
 	id: text('id').primaryKey(),
 	userId: text('user_id').notNull().references(() => user.id),
-	transactionAmount: integer('transaction_amount').notNull(),
+	transactionAmount: numeric('transaction_amount').notNull(),
 	payeeId: text('payee_id').notNull().references(() => payee.id),
 	transactionDate: timestamp('transaction_date', { withTimezone: true, mode: 'date' }).notNull(),
 	categoryId: text('category_id').notNull().references(() => category.id),

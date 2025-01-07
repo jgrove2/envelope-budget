@@ -12,13 +12,13 @@
 	let transaction_form: {
 		transactionType: number;
 		category: any | undefined;
-		amount: number | undefined;
+		amount: string | undefined;
 		transactionDate: Date | undefined;
 		payee: any | undefined;
 	} = $state({
 		transactionType: 1,
 		category: undefined,
-		amount: 0,
+		amount: "",
 		transactionDate: undefined,
 		payee: undefined
 	});
@@ -57,7 +57,7 @@
 			cache.z.mutate.transaction.insert({
 				id: v4(),
 				user_id: userID,
-				transaction_amount: transaction_form.amount * transaction_form.transactionType,
+				transaction_amount: parseFloat(transaction_form.amount) * transaction_form.transactionType,
 				category_id: transaction_form.category,
 				payee_id: payeeId,
 				transaction_date: new Date(transaction_form.transactionDate)?.getTime()
@@ -65,7 +65,7 @@
 		}
 		transaction_form.transactionType = 1;
 		transaction_form.category = undefined;
-		transaction_form.amount = 0;
+		transaction_form.amount = "";
 		transaction_form.transactionDate = undefined;
 		transaction_form.payee = undefined;
 	}
