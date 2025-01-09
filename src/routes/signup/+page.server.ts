@@ -8,7 +8,7 @@ import * as table from '$lib/server/db/schema';
 import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async (event) => {
-	if (event.locals.user) {
+	if (event.locals.profile) {
 		return redirect(302, '/budget');
 	}
 	return {};
@@ -38,7 +38,7 @@ export const actions: Actions = {
 
 		try {
 			console.log("New user has successfully hashed password adding to database");
-			await db.insert(table.user).values({ id: userId, username, passwordHash });
+			await db.insert(table.profile).values({ id: userId, username, passwordHash });
 			console.log("New user has successfully registered with username: " + username);
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);

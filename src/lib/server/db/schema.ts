@@ -1,6 +1,6 @@
 import { pgTable, serial, text, integer, timestamp, jsonb, numeric } from 'drizzle-orm/pg-core';
 
-export const user = pgTable('user', {
+export const profile = pgTable('profile', {
 	id: text('id').primaryKey(),
 	username: text('username').notNull().unique(),
 	passwordHash: text('password_hash').notNull()
@@ -10,19 +10,19 @@ export const session = pgTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
-		.references(() => user.id),
+		.references(() => profile.id),
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
 
 export const payee = pgTable('payee', {
 	id: text('id').primaryKey(),
-	userId: text('user_id').notNull().references(() => user.id),
+	userId: text('user_id').notNull().references(() => profile.id),
 	name: text('name').notNull(),
 })
 
 export const category = pgTable('category', {
 	id: text('id').primaryKey(),
-	userId: text('user_id').notNull().references(() => user.id),
+	userId: text('user_id').notNull().references(() => profile.id),
 	name: text('name').notNull(),
 	groupId: text('group_id').notNull(),
 	budget: jsonb('budget').notNull(),
@@ -31,14 +31,14 @@ export const category = pgTable('category', {
 
 export const categoryGroup = pgTable('category_group', {
 	id: text('id').primaryKey(),
-	userId: text('user_id').notNull().references(() => user.id),
+	userId: text('user_id').notNull().references(() => profile.id),
 	name: text('name').notNull(),
 	creationDate: timestamp('creation_date', { withTimezone: true, mode: 'date' }).notNull(),
 })
 
 export const transaction = pgTable('transaction', {
 	id: text('id').primaryKey(),
-	userId: text('user_id').notNull().references(() => user.id),
+	userId: text('user_id').notNull().references(() => profile.id),
 	transactionAmount: numeric('transaction_amount').notNull(),
 	payeeId: text('payee_id').notNull().references(() => payee.id),
 	transactionDate: timestamp('transaction_date', { withTimezone: true, mode: 'date' }).notNull(),
@@ -48,7 +48,7 @@ export const transaction = pgTable('transaction', {
 
 export type Session = typeof session.$inferSelect;
 
-export type User = typeof user.$inferSelect;
+export type Profile = typeof profile.$inferSelect;
 
 export type Payee = typeof payee.$inferSelect;
 

@@ -2,15 +2,15 @@
 	import { page } from '$app/stores';
 	import { Query } from '$lib/query.svelte';
 	import { get_cache } from '$lib/z.svelte';
-	import type { PageServerData } from '../transaction/$types';
+	import type { PageServerData } from '../$types';
 	const url = $page.url;
 	let cache = get_cache();
 	let { data }: { data: PageServerData } = $props();
 	$inspect(url);
 	let selected = $state(null);
-	let categories = $derived(new Query(cache.z.query.category.where('user_id', '=', data.user.id)));
+	let categories = $derived(new Query(cache.z.query.category.where('user_id', '=', data.profile.id)));
 	let transactions = $derived(
-		new Query(cache.z.query.transaction.where('user_id', '=', data.user.id).related('payee'))
+		new Query(cache.z.query.transaction.where('user_id', '=', data.profile.id).related('payee'))
 	);
 	$inspect(transactions.data);
 	let userID = $state(data.user.id);

@@ -3,8 +3,8 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async (event) => {
-	if (!event.locals.user) {
-		return { user: undefined}
+	if (!event.locals.profile) {
+		return { profile: undefined}
 	}
 	return redirect(302, '/budget/');
 };

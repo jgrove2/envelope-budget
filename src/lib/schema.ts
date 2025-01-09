@@ -2,8 +2,8 @@
 
 import { ANYONE_CAN, column, createSchema, createTableSchema, definePermissions, NOBODY_CAN, type ExpressionBuilder, type TableSchema } from "@rocicorp/zero"
 const {json} = column;
-const userSchema = createTableSchema({
-	tableName: 'user',
+const profileSchema = createTableSchema({
+	tableName: 'profile',
 	columns: {
 		id: 'string',
 		username: 'string',
@@ -21,9 +21,9 @@ const payeeSchema = createTableSchema({
 	},
 	primaryKey: 'id',
 	relationships: {
-		user: {
+		profile: {
 			sourceField: 'user_id',
-			destSchema: userSchema,
+			destSchema: profileSchema,
 			destField: 'id'
 		}
 	}
@@ -38,9 +38,9 @@ const categoryGroupSchema = createTableSchema({
 	},
 	primaryKey: 'id',
 	relationships: {
-		user: {
+		profile: {
 			sourceField: 'user_id',
-			destSchema: userSchema,
+			destSchema: profileSchema,
 			destField: 'id'
 		}
 	}
@@ -58,9 +58,9 @@ const categorySchema = createTableSchema({
 	},
 	primaryKey: 'id',
 	relationships: {
-		user: {
+		profile: {
 			sourceField: 'user_id',
-			destSchema: userSchema,
+			destSchema: profileSchema,
 			destField: 'id'
 		},
 		group: {
@@ -83,9 +83,9 @@ const transactionSchema = createTableSchema({
 	},
 	primaryKey: 'id',
 	relationships: {
-		user: {
+		profile: {
 			sourceField: 'user_id',
-			destSchema: userSchema,
+			destSchema: profileSchema,
 			destField: 'id'
 		},
 		payee: {
@@ -104,7 +104,7 @@ const transactionSchema = createTableSchema({
 export const schema = createSchema({
 	version: 1,
 	tables: {
-		user: userSchema,
+		profile: profileSchema,
 		payee: payeeSchema,
 		category: categorySchema,
 		category_group: categoryGroupSchema,
@@ -113,7 +113,7 @@ export const schema = createSchema({
 
 })
 
-export type User = typeof userSchema;
+export type Profile = typeof profileSchema;
 export type Payee = typeof payeeSchema;
 export type Category = typeof categorySchema;
 export type CategoryGroup = typeof categoryGroupSchema;
@@ -126,7 +126,7 @@ type AuthData = {
 
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 	return {
-		user: {
+		profile: {
 			
 		},
 		category: {

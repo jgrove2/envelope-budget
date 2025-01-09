@@ -8,7 +8,7 @@ import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from '../signin/$types';
 
 export const load: PageServerLoad = async (event) => {
-	if (event.locals.user) {
+	if (event.locals.profile) {
 		return redirect(302, '/budget');
 	}
 	return {};
@@ -27,7 +27,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password' });
 		}
 
-		const results = await db.select().from(table.user).where(eq(table.user.username, username));
+		const results = await db.select().from(table.profile).where(eq(table.profile.username, username));
 
 		const existingUser = results.at(0);
 		if (!existingUser) {

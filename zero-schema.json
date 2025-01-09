@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "user": {},
+    "profile": {},
     "category": {},
     "category_group": {},
     "payee": {},
@@ -50,14 +50,14 @@
             ],
             "destSchema": "category_group"
           },
-          "user": {
+          "profile": {
             "sourceField": [
               "user_id"
             ],
             "destField": [
               "id"
             ],
-            "destSchema": "user"
+            "destSchema": "profile"
           }
         }
       },
@@ -81,14 +81,14 @@
           }
         },
         "relationships": {
-          "user": {
+          "profile": {
             "sourceField": [
               "user_id"
             ],
             "destField": [
               "id"
             ],
-            "destSchema": "user"
+            "destSchema": "profile"
           }
         }
       },
@@ -112,16 +112,37 @@
           }
         },
         "relationships": {
-          "user": {
+          "profile": {
             "sourceField": [
               "user_id"
             ],
             "destField": [
               "id"
             ],
-            "destSchema": "user"
+            "destSchema": "profile"
           }
         }
+      },
+      "profile": {
+        "tableName": "profile",
+        "primaryKey": [
+          "id"
+        ],
+        "columns": {
+          "id": {
+            "type": "string",
+            "optional": false
+          },
+          "passwordHash": {
+            "type": "string",
+            "optional": false
+          },
+          "username": {
+            "type": "string",
+            "optional": false
+          }
+        },
+        "relationships": {}
       },
       "transaction": {
         "tableName": "transaction",
@@ -173,37 +194,16 @@
             ],
             "destSchema": "payee"
           },
-          "user": {
+          "profile": {
             "sourceField": [
               "user_id"
             ],
             "destField": [
               "id"
             ],
-            "destSchema": "user"
+            "destSchema": "profile"
           }
         }
-      },
-      "user": {
-        "tableName": "user",
-        "primaryKey": [
-          "id"
-        ],
-        "columns": {
-          "id": {
-            "type": "string",
-            "optional": false
-          },
-          "passwordHash": {
-            "type": "string",
-            "optional": false
-          },
-          "username": {
-            "type": "string",
-            "optional": false
-          }
-        },
-        "relationships": {}
       }
     }
   }
