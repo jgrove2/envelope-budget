@@ -4,7 +4,7 @@
 	import BudgetTable from '$lib/components/BudgetTable.svelte';
 	let cache = get_cache();
 	let { data }: { data: PageServerData } = $props();
-	let userID = $state(data.user.id);
+	let userID = $state(data.profile.id);
 	$effect(() => {
 		if(cache.getCurrentUserID() !== userID) {
 			cache.setUser(userID);
@@ -12,4 +12,4 @@
 	})
 </script>
 
-<BudgetTable userID={data.user}/>
+<BudgetTable userID={data.profile}/>

@@ -8,7 +8,7 @@ export const profile = pgTable('profile', {
 
 export const session = pgTable('session', {
 	id: text('id').primaryKey(),
-	userId: text('user_id')
+	user_id: text('user_id')
 		.notNull()
 		.references(() => profile.id),
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()

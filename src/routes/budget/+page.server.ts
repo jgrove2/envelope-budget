@@ -6,7 +6,7 @@ export const load: PageServerLoad = async (event) => {
     if (!event.locals.profile) {
         return redirect(302, '/signin');
     }
-    return { user: event.locals.profile };
+    return { profile: event.locals.profile };
 };
 
 export const actions: Actions = {

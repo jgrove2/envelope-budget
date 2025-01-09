@@ -228,7 +228,6 @@
 	}
 	function getTotalBalance() {
 		let total = 0;
-		console.log(categories, transactionsGrouped);
 		if (!categories) return 0;
 		if (!categoryGroups.data) return 0;
 		if (!transactionsGrouped) return 0;

@@ -43,7 +43,6 @@
 		) {
 			let payeeId = '';
 			let payee = payees?.data?.find((payee: any) => payee.name === transaction_form.payee);
-			console.log(payee);
 			if (!payee) {
 				payeeId = v4();
 				cache.z.mutate.payee.insert({
