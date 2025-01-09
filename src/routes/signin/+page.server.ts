@@ -26,7 +26,8 @@ export const actions: Actions = {
 		if (!validatePassword(password)) {
 			return fail(400, { message: 'Invalid password' });
 		}
-		await db.select().from(table.transaction)
+		console.log(await db.select().from(table.transaction))
+		console.log(await db.select().from(table.profile))
 
 		const results = await db.select().from(table.profile).where(eq(table.profile.username, username));
 
