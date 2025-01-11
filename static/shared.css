@@ -6,6 +6,7 @@ html {
 	---secondary: #d6b19a;
 	---accent: #905c3c;
     ---accent-glass: rgba(144, 92, 60, 0.7);
+    ---delete: #d6443a;
     ---red: red;
     ---greem: green;
     overflow-x: hidden;

@@ -3,8 +3,6 @@
 	import { Query } from '$lib/query.svelte';
 	import { get_cache } from '$lib/z.svelte';
 	import { v4 } from 'uuid';
-	import type { Category, Schema } from '$lib/schema';
-	import { page } from '$app/state';
 	let cache = get_cache();
 	let userID = $state('');
 	let payees: any | undefined = $derived(new Query(cache.z.query.payee.where('user_id', '=', userID)));
@@ -16,7 +14,7 @@
 		transactionDate: Date | undefined;
 		payee: any | undefined;
 	} = $state({
-		transactionType: 1,
+		transactionType: -1,
 		category: undefined,
 		amount: "",
 		transactionDate: undefined,
@@ -71,7 +69,6 @@
 </script>
 
 <div class="create-transaction">
-	<a href="/budget/transactions" class={page.url.pathname === '/budget/transactions' ? 'current' : ''}>Transactions</a>
 	<button onclick={() => dialog?.showModal()}><span>Create Transaction</span></button>
 </div>
 <dialog id="create-transaction-dialog">
@@ -126,6 +123,7 @@
 		<input
 			list="transaction-payee"
 			name="transaction-payee"
+			class="transaction-payee"
 			bind:value={transaction_form.payee}
 			required
 		/>
@@ -151,8 +149,16 @@
 </dialog>
 
 <style>
+	.transaction-payee {
+		width: 20rem;
+		padding: 0.5rem;
+		margin: 0;
+		border-radius: 0.5rem;
+		font-size: 1rem;
+	}
 	.transaction-amount-input {
 		display: flex;
+		font-size: 1rem;
 		/* gap: 0.5rem; */
 		input[type='number'] {
 			width: 66% !important;

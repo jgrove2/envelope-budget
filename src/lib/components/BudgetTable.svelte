@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
 	import { budgetHelper } from '$lib/budgetHelpers.svelte';
 	import { money } from '$lib/helpers/money';
 	import { Query } from '$lib/query.svelte';
@@ -440,7 +441,7 @@
 	<div class="caption">
 		<span></span>
 		<span> </span>
-		<button class="settings" onclick={() => (open = true)}> Settings </button>
+		<button class="settings" onclick={() => goto("/budget/settings")}> Settings </button>
 	</div>
 	<table>
 		<colgroup><col width="30%" /><col width="30%" /><col width="20%" /><col width="20%" /></colgroup

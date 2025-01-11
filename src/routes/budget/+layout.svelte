@@ -28,12 +28,13 @@
 				<button>Sign out</button>
 			</form>
 		</div>
+		{#if page.url.pathname === '/budget'}
 		<div class="table-content">
-			<span class={budgetHelper.leftOverBalance <= 0 ? 'red' : 'green'}
+			<span class={budgetHelper.leftOverBalance < 0 ? 'red' : budgetHelper.leftOverBalance > 0 ? 'green': ""}
 				>{money.format(budgetHelper.leftOverBalance)}</span
-			>
-			<span class="date-selection">
-				<button
+				>
+				<span class="date-selection">
+					<button
 					onclick={() => {
 						if (budgetHelper.selectedMonth.getMonth() === 0) {
 							budgetHelper.selectedMonth = new Date(
@@ -52,14 +53,14 @@
 					>{`${budgetHelper.selectedMonth.toLocaleDateString('default', { month: 'long' })} ${budgetHelper.selectedMonth.getFullYear()}`}</span
 				>
 				<button
-					onclick={() => {
-						if (budgetHelper.selectedMonth.getMonth() === 11) {
-							budgetHelper.selectedMonth = new Date(
-								budgetHelper.selectedMonth.getFullYear() + 1,
-								0
-							);
-						} else {
-							budgetHelper.selectedMonth = new Date(
+				onclick={() => {
+					if (budgetHelper.selectedMonth.getMonth() === 11) {
+						budgetHelper.selectedMonth = new Date(
+							budgetHelper.selectedMonth.getFullYear() + 1,
+							0
+						);
+					} else {
+						budgetHelper.selectedMonth = new Date(
 								budgetHelper.selectedMonth.getFullYear(),
 								budgetHelper.selectedMonth.getMonth() + 1
 							);
@@ -69,6 +70,7 @@
 			</span>
 			<span></span>
 		</div>
+		{/if}
 	</div>
 	{#key cache.zUser}
 		{@render children()}
